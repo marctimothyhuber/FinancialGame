@@ -42,6 +42,7 @@ let saveAccounts () =
     File.WriteAllText("accounts.txt", data)
     prepareResult(1, true)
     printfn "Accounts saved"
+    prepareResult(2, false)
 
 let loadAccounts () =
     if File.Exists("accounts.txt") then
@@ -65,7 +66,7 @@ let main () =
         | "2" -> printf "Amount to deposit: "; deposit (decimal (Console.ReadLine())); loop()
         | "3" -> showBalances(); loop()
         | "4" -> saveAccounts()
-        | _ -> printfn "Invalid option" ; loop()
+        | _ -> prepareResult(1, true); printfn "Invalid option" ; loop()
     loop()
 
 main()
