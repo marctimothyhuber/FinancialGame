@@ -10,7 +10,7 @@ open System.Reflection
 [<assembly: System.Reflection.AssemblyCompanyAttribute("FinancialGame")>]
 [<assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")>]
 [<assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")>]
-[<assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+eef6340b613bed525c8865a8aaf2092d926df90d")>]
+[<assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e374f52019f353dcfe3dde139bc35da06d6a78e6")>]
 [<assembly: System.Reflection.AssemblyProductAttribute("FinancialGame")>]
 [<assembly: System.Reflection.AssemblyTitleAttribute("FinancialGame")>]
 [<assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")>]
