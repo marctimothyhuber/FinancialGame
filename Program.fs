@@ -2,12 +2,19 @@
 open System.IO
 
 type Account = { Type: string; Currency: string ;Balance: decimal }
+type ExchangeRate = { From: string; To: string; Rate: decimal }
 
 let cashAccountCHF = { Type = "Cash"; Currency = "CHF"; Balance = 0M }
 let bankAccountCHF = { Type = "Bank" ;Currency = "CHF"; Balance = 100M }
 let bankAccountUSD = { Type = "Bank" ;Currency = "USD"; Balance = 0M }
 let bankAccountEUR = { Type = "Bank" ;Currency = "EUR"; Balance = 0M }
 
+let CHFtoUSD = { From = "CHF"; To = "USD"; Rate = 1.1M }
+let USDtoCHF = { From = "USD"; To = "CHF"; Rate = 0.9M }
+let CHFtoEUR = { From = "CHF"; To = "EUR"; Rate = 1.2M }
+let EURtoCHF = { From = "EUR"; To = "CHF"; Rate = 0.8M }
+let USDtoEUR = { From = "USD"; To = "EUR"; Rate = 1.3M }
+let EURtoUSD = { From = "EUR"; To = "USD"; Rate = 0.7M }
 
 let prepareResult (amount, clear) =
     if clear then
@@ -67,6 +74,24 @@ let loadAccounts () =
         printfn "No saved accounts found"
         bankAccountCHF, cashAccountCHF, bankAccountUSD, bankAccountEUR
 
+let tradeExchange (bankAccountFrom: Account) (bankAccountTo: Account) (amount: decimal) =
+    let rate = match bankAccountFrom.Currency, bankAccountTo.Currency with
+                        | "CHF", "USD" -> CHFtoUSD.Rate
+                        | "USD", "CHF" -> USDtoCHF.Rate
+                        | "CHF", "EUR" -> CHFtoEUR.Rate
+                        | "EUR", "CHF" -> EURtoCHF.Rate
+                        | "USD", "EUR" -> USDtoEUR.Rate
+                        | "EUR", "USD" -> EURtoUSD.Rate
+                        | _, _ -> 0M
+    if bankAccountFrom.Balance >= amount then
+        let newBankAccountFrom = { bankAccountFrom with Balance = bankAccountFrom.Balance - amount }
+        let newBankAccountTo = { bankAccountTo with Balance = bankAccountTo.Balance + amount * rate }
+        newBankAccountFrom, newBankAccountTo
+    else 
+        prepareResult(1, true)
+        printfn "Insufficient funds in bank account"
+        bankAccountFrom, bankAccountTo
+
 let trade (bankAccountCHF: Account) (cashAccountCHF: Account) (bankAccountUSD: Account) (bankAccountEUR: Account)  =
     printfn "Trading is only available in your bank account"
     printfn "Your Bank Accounts:"
@@ -82,8 +107,30 @@ let trade (bankAccountCHF: Account) (cashAccountCHF: Account) (bankAccountUSD: A
     let tradeTo = Console.ReadLine()
     printf "Amount to trade: "
     let amount = decimal (Console.ReadLine())
-    
-    bankAccountCHF, cashAccountCHF, bankAccountUSD, bankAccountEUR
+    let newBankAccountCHF, newCashAccountCHF, newBankAccountUSD, newBankAccountEUR =
+        match tradeFrom, tradeTo with
+        | "CHF", "USD" ->
+            let newBankAccountCHF, newBankAccountUSD = tradeExchange bankAccountCHF bankAccountUSD amount
+            newBankAccountCHF, cashAccountCHF, newBankAccountUSD, bankAccountEUR
+        | "USD", "CHF" ->
+            let newBankAccountUSD, newBankAccountCHF = tradeExchange bankAccountUSD bankAccountCHF amount
+            newBankAccountCHF, cashAccountCHF, newBankAccountUSD, bankAccountEUR
+        | "CHF", "EUR" ->
+            let newBankAccountCHF, newBankAccountEUR = tradeExchange bankAccountCHF bankAccountEUR amount
+            newBankAccountCHF, cashAccountCHF, bankAccountUSD, newBankAccountEUR
+        | "EUR", "CHF" ->
+            let newBankAccountEUR, newBankAccountCHF = tradeExchange bankAccountEUR bankAccountCHF amount
+            newBankAccountCHF, cashAccountCHF, bankAccountUSD, newBankAccountEUR
+        | "USD", "EUR" ->
+            let newBankAccountUSD, newBankAccountEUR = tradeExchange bankAccountUSD bankAccountEUR amount
+            bankAccountCHF, cashAccountCHF, newBankAccountUSD, newBankAccountEUR
+        | "EUR", "USD" ->
+            let newBankAccountEUR, newBankAccountUSD = tradeExchange bankAccountEUR bankAccountUSD amount
+            bankAccountCHF, cashAccountCHF, newBankAccountUSD, newBankAccountEUR
+        | _ ->
+            printfn "Invalid trade pair"
+            bankAccountCHF, cashAccountCHF, bankAccountUSD, bankAccountEUR
+    newBankAccountCHF, newCashAccountCHF, newBankAccountUSD, newBankAccountEUR
 
 let main () =
     let bankAccountCHF, cashAccountCHF, bankAccountUSD, bankAccountEUR = loadAccounts()
