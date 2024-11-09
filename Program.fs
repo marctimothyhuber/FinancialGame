@@ -1,10 +1,13 @@
 ﻿open System
 open System.IO
 
-type Account = { Name: string; Balance: decimal }
+type Account = { Type: string; Currency: string ;Balance: decimal }
 
-let cashAccount = { Name = "Cash"; Balance = 0M }
-let bankAccount = { Name = "Bank"; Balance = 100M }
+let cashAccountCHF = { Type = "Cash"; Currency = "CHF"; Balance = 0M }
+let bankAccountCHF = { Type = "Bank" ;Currency = "CHF"; Balance = 100M }
+let bankAccountUSD = { Type = "Bank" ;Currency = "USD"; Balance = 0M }
+let bankAccountEUR = { Type = "Bank" ;Currency = "EUR"; Balance = 0M }
+
 
 let prepareResult (amount, clear) =
     if clear then
@@ -12,37 +15,38 @@ let prepareResult (amount, clear) =
     for i in 1 .. amount do
         printfn "--------------------------------"
 
-let withdraw amount (bankAccount: Account) (cashAccount: Account) =
-    if bankAccount.Balance >= amount then
-        let newBankAccount = { bankAccount with Balance = bankAccount.Balance - amount }
-        let newCashAccount = { cashAccount with Balance = cashAccount.Balance + amount }
+let withdraw amount (bankAccountCHF: Account) (cashAccount: Account) (bankAccountUSD: Account) (bankAccountEUR: Account) =
+    if bankAccountCHF.Balance >= amount then
+        let newBankAccountCHF = { bankAccountCHF with Balance = bankAccountCHF.Balance - amount }
+        let newCashAccountCHF = { cashAccountCHF with Balance = cashAccountCHF.Balance + amount }
         prepareResult(1, true)
-        printfn "Withdrawn %M from bank to cash" amount
-        newBankAccount, newCashAccount
+        printfn "Withdrawn %M CHF from bank to cash" amount
+        newBankAccountCHF, newCashAccountCHF, bankAccountUSD, bankAccountEUR
     else
         prepareResult(1, true)
         printfn "Insufficient funds in bank account"
-        bankAccount, cashAccount
+        bankAccountCHF, cashAccountCHF, bankAccountUSD, bankAccountEUR
 
-let deposit amount (bankAccount: Account) (cashAccount: Account) =
-    if cashAccount.Balance >= amount then
-        let newBankAccount = { bankAccount with Balance = bankAccount.Balance + amount }
-        let newCashAccount = { cashAccount with Balance = cashAccount.Balance - amount }
+let deposit amount (bankAccountCHF: Account) (cashAccountCHF: Account) (bankAccountUSD: Account) (bankAccountEUR: Account) =
+    if cashAccountCHF.Balance >= amount then
+        let newBankAccountCHF = { bankAccountCHF with Balance = bankAccountCHF.Balance + amount }
+        let newCashAccountCHF = { cashAccountCHF with Balance = cashAccountCHF.Balance - amount }
         prepareResult(1, true)
-        printfn "Deposited %M from cash to bank" amount
-        newBankAccount, newCashAccount
+        printfn "Deposited %M CHF from cash to bank" amount
+        newBankAccountCHF, newCashAccountCHF, bankAccountUSD, bankAccountEUR
     else
         prepareResult(1, true)
         printfn "Insufficient funds in cash account"
-        bankAccount, cashAccount
+        bankAccountCHF, cashAccountCHF, bankAccountUSD, bankAccountEUR
 
-let showBalances (bankAccount: Account) (cashAccount: Account) =
+let showBalances (bankAccountCHF: Account) (cashAccountCHF: Account) (bankAccountUSD: Account) (bankAccountEUR: Account) =
     prepareResult(1, true)
-    printfn "Cash Account Balance: %M" cashAccount.Balance
-    printfn "Bank Account Balance: %M" bankAccount.Balance
+    printfn "Cash Account Balance:\nCHF:     %M" cashAccountCHF.Balance
+    printfn "Bank Account Balance:"
+    printfn "CHF:     %M\nUSD:     %M\nEUR:     %M" bankAccountCHF.Balance bankAccountUSD.Balance bankAccountEUR.Balance
 
-let saveAccounts (bankAccount: Account) (cashAccount: Account) =
-    let data = sprintf "%M,%M" cashAccount.Balance bankAccount.Balance
+let saveAccounts (bankAccountCHF: Account) (cashAccountCHF: Account) (bankAccountUSD: Account) (bankAccountEUR: Account) =
+    let data = sprintf "%M,%M,%M,%M" cashAccountCHF.Balance bankAccountCHF.Balance bankAccountUSD.Balance bankAccountEUR.Balance
     File.WriteAllText("accounts.txt", data)
     prepareResult(1, true)
     printfn "Accounts saved"
@@ -51,30 +55,74 @@ let saveAccounts (bankAccount: Account) (cashAccount: Account) =
 let loadAccounts () =
     if File.Exists("accounts.txt") then
         let data = File.ReadAllText("accounts.txt").Split(',')
-        let cashAccount = { Name = "Cash"; Balance = decimal data.[0] }
-        let bankAccount = { Name = "Bank"; Balance = decimal data.[1] }
+        let cashAccountCHF = { Type = "Cash"; Currency = "CHF"; Balance = decimal data.[0] }
+        let bankAccountCHF = { Type = "Bank"; Currency = "CHF"; Balance = decimal data.[1] }
+        let bankAccountUSD = { Type = "Bank"; Currency = "USD"; Balance = decimal data.[2] }
+        let bankAccountEUR = { Type = "Bank"; Currency = "EUR"; Balance = decimal data.[3] }
         prepareResult(1, true)
         printfn "Accounts loaded"
-        bankAccount, cashAccount
+        bankAccountCHF, cashAccountCHF, bankAccountUSD, bankAccountEUR
     else
         prepareResult(1, true)
         printfn "No saved accounts found"
-        bankAccount, cashAccount
+        bankAccountCHF, cashAccountCHF, bankAccountUSD, bankAccountEUR
+
+let trade (bankAccountCHF: Account) (cashAccountCHF: Account) (bankAccountUSD: Account) (bankAccountEUR: Account)  =
+    printfn "Trading is only available in your bank account"
+    printfn "Your Bank Accounts:"
+    printfn "CHF     %M" bankAccountCHF.Balance
+    printfn "USD     %M" bankAccountUSD.Balance
+    printfn "EUR     %M" bankAccountEUR.Balance
+    prepareResult(1, false)
+    let tradeableFrom = [ "CHF"; "USD"; "EUR" ]
+    printf "Select currency to trade from (CHF, USD, EUR): "
+    let tradeFrom = Console.ReadLine()
+    let tradeableTo = tradeableFrom |> List.filter(fun x -> x <> tradeFrom)
+    printf "Select currency to trade to (%s, %s): " tradeableTo.[0] tradeableTo.[1]
+    let tradeTo = Console.ReadLine()
+    printf "Amount to trade: "
+    let amount = decimal (Console.ReadLine())
+    
+    bankAccountCHF, cashAccountCHF, bankAccountUSD, bankAccountEUR
 
 let main () =
-    let bankAccount, cashAccount = loadAccounts()
-    let rec loop (bankAccount: Account) (cashAccount: Account) =
+    let bankAccountCHF, cashAccountCHF, bankAccountUSD, bankAccountEUR = loadAccounts()
+    let rec loop (bankAccountCHF: Account) (cashAccountCHF: Account) (bankAccountUSD: Account) (bankAccountEUR: Account)=
         prepareResult(2, false)
-        printf "1. Withdraw\n2. Deposit\n3. Show Balances\n4. Save and Exit\n> "
+        printf "1. Withdraw\n2. Deposit\n3. Currency Exchange\n4. Show Balances\n5. Save and Exit\n> "
         let input = Console.ReadLine()
-        let newBankAccount, newCashAccount =
+        let newBankAccountCHF, newCashAccountCHF, newBankAccountUSD, newBankAccountEUR =
             match input with
-            | "1" -> printf "Amount to withdraw: "; withdraw (decimal (Console.ReadLine())) bankAccount cashAccount
-            | "2" -> printf "Amount to deposit: "; deposit (decimal (Console.ReadLine())) bankAccount cashAccount
-            | "3" -> showBalances bankAccount cashAccount; bankAccount, cashAccount
-            | "4" -> saveAccounts bankAccount cashAccount; bankAccount, cashAccount
-            | _ -> prepareResult(1, true); printfn "Invalid option"; bankAccount, cashAccount
-        if input <> "4" then loop newBankAccount newCashAccount
-    loop bankAccount cashAccount
+            | "1" -> 
+                printf "Amount to withdraw: "
+                let amount = decimal (Console.ReadLine())
+                let newBankAccountCHF, newCashAccountCHF, newBankAccountUSD, newBankAccountEUR = 
+                    withdraw amount bankAccountCHF cashAccountCHF bankAccountUSD bankAccountEUR
+                newBankAccountCHF, newCashAccountCHF, newBankAccountUSD, newBankAccountEUR
+            | "2" -> 
+                printf "Amount to deposit: "
+                let amount = decimal (Console.ReadLine())
+                let newBankAccountCHF, newCashAccountCHF, newBankAccountUSD, newBankAccountEUR = 
+                    deposit amount bankAccountCHF cashAccountCHF bankAccountUSD bankAccountEUR
+                newBankAccountCHF, newCashAccountCHF, newBankAccountUSD, newBankAccountEUR
+            | "3" -> 
+                prepareResult(1, true)
+                let newBankAccountCHF, newCashAccountCHF, newBankAccountUSD, newBankAccountEUR = 
+                    trade bankAccountCHF cashAccountCHF bankAccountUSD bankAccountEUR
+                newBankAccountCHF, newCashAccountCHF, newBankAccountUSD, newBankAccountEUR
+            | "4" -> 
+                showBalances bankAccountCHF cashAccountCHF bankAccountUSD bankAccountEUR
+                bankAccountCHF, cashAccountCHF, bankAccountUSD, bankAccountEUR
+            | "5" -> 
+                saveAccounts bankAccountCHF cashAccountCHF bankAccountUSD bankAccountEUR
+                bankAccountCHF, cashAccountCHF, bankAccountUSD, bankAccountEUR
+            | _ -> 
+                prepareResult(1, true)
+                printfn "Invalid option"
+                bankAccountCHF, cashAccountCHF, bankAccountUSD, bankAccountEUR
+            
+        if input <> "5" then 
+            loop newBankAccountCHF newCashAccountCHF newBankAccountUSD newBankAccountEUR
+    loop bankAccountCHF cashAccountCHF bankAccountUSD bankAccountEUR
 
 main()
