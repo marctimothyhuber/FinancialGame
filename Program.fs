@@ -2,7 +2,6 @@
 open System.IO
 
 type Account = { Name: string; mutable Balance: decimal }
-type ExchangeRate = { FromCurrency: string; ToCurrency: string; Rate: decimal }
 
 let cashAccount = { Name = "Cash"; Balance = 0M }
 let bankAccount = { Name = "Bank"; Balance = 100M }
