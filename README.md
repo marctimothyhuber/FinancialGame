@@ -3,6 +3,19 @@
 This Project is part of my seminar *Programming Languages and Paradigms*. In this course I decided on learning more about F# since it enhances my understanding of functional programming and was a language that i wasn't already familiar with.
 
 ## Usage
+### Setup & Run
+- Clone Project to local environment
+```
+Git clone https://github.com/marctimothyhuber/FinancialGame.git
+```
+- Add ```APIKEY.TXT``` file to the folder (See "API Used" section)
+
+- To run the project go open the terminal inside the project and run
+```
+dotnet run
+```
+
+### Usability
 To start the program enter "dotnet run" while you are in the main folder.
 
 As soon as the program runs you can see what you are able to do in the console.
@@ -24,9 +37,11 @@ You get 5000 API calls per month for free.
 
 *https://app.freecurrencyapi.com/dashboard*
 
-Enter your API key with the full URL in to a "APIKEY.txt" file as follows:
+Enter your API key with the full URL in to a ```APIKEY.txt``` file as follows:
 
-*https://api.freecurrencyapi.com/v1/latest?apikey=YOURKEYHERE*
+```
+https://api.freecurrencyapi.com/v1/latest?apikey=YOURKEYHERE
+```
 
 
 ## Nice to haves implemented
