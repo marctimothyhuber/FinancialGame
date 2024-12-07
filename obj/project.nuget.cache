@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "6ebqsoophhM=",
+  "success": true,
+  "projectFilePath": "/Users/marchuber/Library/CloudStorage/OneDrive-Personal/2 Wirtschaftsinformatik/2_Semester_7/Programming Languages and Paradigms/FinancialGame/FinancialGame.fsproj",
+  "expectedPackageFiles": [
+    "/Users/marchuber/.nuget/packages/fsharp.core/8.0.400/fsharp.core.8.0.400.nupkg.sha512",
+    "/Users/marchuber/.nuget/packages/newtonsoft.json/13.0.3/newtonsoft.json.13.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
